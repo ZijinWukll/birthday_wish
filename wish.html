@@ -1,0 +1,629 @@
+<!--
+ * @Author: Tina Huang
+ * @Date: 2022-12-09 21:29:19
+ * @LastEditors: Tina Huang
+ * @LastEditTime: 2022-12-10 16:30:00
+ * @Description: 生日祝福页面，包含动态蛋糕和滚动内容
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Happy Birthday</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            background-color: #000;
+            margin: 0;
+            padding: 0;
+            color: #C89568;
+            font-family: 'Playfair Display', serif;
+            overflow-x: hidden;
+        }
+
+        body,
+        html {
+            height: 100%;
+            width: 100%;
+        }
+
+        .section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            flex-direction: column;
+            /* 改为纵向布局，蛋糕在上文字在下 */
+        }
+
+        .main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        svg {
+            width: 70%;
+            /* 增大基础尺寸 */
+            height: auto;
+            visibility: hidden;
+            margin-bottom: 20px;
+            /* 蛋糕和文字间距 */
+        }
+
+        .sparkle {
+            mix-blend-mode: luminosity;
+        }
+
+        #header {
+            text-align: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 35px;
+            min-width: 400px;
+            max-height: 100vh;
+            margin-top: 0;
+            /* 消除文字顶部间距 */
+        }
+
+        .header-item {
+            opacity: 0;
+            transition: all .5s ease-in-out;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .header-item.show {
+            opacity: 1;
+        }
+
+        #treeStarOutline {
+            opacity: 0.5;
+        }
+
+        #mask {
+            position: absolute;
+            background-color: #000;
+            width: 100%;
+            height: 100%;
+            font-size: 15rem;
+            animation: shack 0.4s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            display: none;
+        }
+
+        @keyframes shack {
+            0% {
+                transform: rotate(0);
+            }
+
+            25% {
+                transform: rotate(-10deg);
+            }
+
+            50% {
+                transform: rotate(0);
+            }
+
+            75% {
+                transform: rotate(10deg);
+            }
+
+            100% {
+                transform: rotate(0);
+            }
+        }
+
+        #starCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        #fadeOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            animation: fadeOutOverlay 2s forwards;
+            pointer-events: none;
+        }
+
+        @keyframes fadeOutOverlay {
+            to {
+                opacity: 0;
+            }
+        }
+
+        .mainSVG {
+            /* 适配14寸屏幕，减小尺寸 */
+            width: 50vh;
+            height: auto;
+            visibility: hidden;
+            margin-bottom: 10px;
+        }
+
+        /* Cake stroke tuning - 加粗线条 + 统一文字颜色 */
+        .cake-line {
+            vector-effect: non-scaling-stroke;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            stroke: url(#luxuryGradient);
+            /* 使用奢华渐变色 */
+            fill: none;
+        }
+
+        .cake-line.thick {
+            stroke-width: 5;
+            /* 加粗：原3 → 5 */
+        }
+
+        .cake-line.medium {
+            stroke-width: 4;
+            /* 加粗：原2.3 → 4 */
+        }
+
+        .cake-line.thin {
+            stroke-width: 3;
+            /* 加粗：原1.6 → 3 */
+        }
+
+        .cake-line.icing {
+            stroke-width: 3.5;
+            /* 加粗：原1.8 → 3.5 */
+        }
+
+        /* 下滑提示 - 保留 */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #C89568;
+            font-size: 18px;
+            opacity: 0;
+            animation: fadeIn 1s 3s forwards;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+
+        .scroll-indicator:hover {
+            opacity: 0.7;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .scroll-indicator::after {
+            content: "↓";
+            display: block;
+            text-align: center;
+            animation: bounce 2s infinite;
+            margin-top: 8px;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-10px);
+            }
+
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        /* 长页面内容区块 - 保留 */
+        .content-section {
+            padding: 100px 20px;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .content-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .content-section h2 {
+            font-size: 42px;
+            margin-bottom: 40px;
+        }
+
+        .content-section p {
+            font-size: 22px;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        /* Snow particle - 优化粒子显示 */
+        .snowflake {
+            position: absolute;
+            background-color: rgba(200, 149, 104, 0.9);
+            /* 改为文字同色系 */
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10;
+            opacity: 1 !important;
+            /* 强制不透明 */
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 保留所有原有元素 -->
+    <div id="fadeOverlay"></div>
+    <audio id="bgMusic" loop preload="auto">
+        <source src="audio/background.mp3" type="audio/mpeg">
+    </audio>
+    <div id="mask">🎄</div>
+    <canvas id="starCanvas"></canvas>
+
+    <!-- 第一区块：蛋糕在上，文字在下，居中布局 -->
+    <section class="section">
+        <div class="main">
+            <!-- 生日蛋糕SVG：尺寸放大+颜色统一 -->
+            <svg class="mainSVG" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                viewBox="0 0 800 600">
+                <defs>
+                    <!-- 简化渐变，统一为文字颜色 -->
+                    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#C89568" />
+                        <stop offset="100%" stop-color="#C89568" />
+                    </linearGradient>
+
+                    <!-- 新增：奢华质感渐变 (暗金-亮金-暗金) -->
+                    <linearGradient id="luxuryGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#8B5A2B" />
+                        <stop offset="50%" stop-color="#E6B88A" />
+                        <stop offset="100%" stop-color="#8B5A2B" />
+                    </linearGradient>
+
+                    <linearGradient id="starGradient" x1="30%" y1="0%" x2="70%" y2="100%">
+                        <stop offset="0%" stop-color="#C89568" />
+                        <stop offset="100%" stop-color="#C89568" />
+                    </linearGradient>
+
+                    <radialGradient id="starHighlight" cx="35%" cy="25%" r="60%">
+                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8" />
+                        <stop offset="70%" stop-color="#C89568" stop-opacity="0.7" />
+                        <stop offset="100%" stop-color="#C89568" stop-opacity="0.5" />
+                    </radialGradient>
+
+                    <filter id="goldGlow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
+
+                    <circle id="circ" class="particle" cx="0" cy="0" r="1" />
+                    <polygon id="star" class="particle"
+                        points="4.55,0 5.95,2.85 9.1,3.3 6.82,5.52 7.36,8.65 4.55,7.17 1.74,8.65 2.27,5.52 0,3.3 3.14,2.85 " />
+                    <polygon id="cross" class="particle"
+                        points="4,3.5 2.5,2 4,0.5 3.5,0 2,1.5 0.5,0 0,0.5 1.5,2 0,3.5 0.5,4 2,2.5 3.5,4 " />
+                    <path id="heart" class="particle" d="M2.9,0C2.53,0,2.2,0.18,2,0.47C1.8,0.18,1.47,0,1.1,0C0.49,0,0,0.49,0,1.1
+	C0,2.6,1.56,4,2,4s2-1.4,2-2.9C4,0.49,3.51,0,2.9,0z" />
+
+                    <radialGradient id="grad" cx="3" cy="3" r="6" gradientUnits="userSpaceOnUse">
+                        <stop offset="0" style="stop-color: #C89568" />
+                        <stop offset="100%" style="stop-color: #C89568" />
+                    </radialGradient>
+                    <radialGradient id="dotGrad" cx="0" cy="0" r="50" gradientUnits="userSpaceOnUse">
+                        <stop offset="0" style="stop-color: #ffffff; stop-opacity: 1" />
+                        <stop offset="0.1" style="stop-color: #C89568; stop-opacity: 0.8" />
+                        <stop offset="1" style="stop-color: #081029; stop-opacity: 0" />
+                    </radialGradient>
+
+                    <filter id="glow" x="-150%" y="-150%" width="280%" height="280%">
+                        <feOffset result="offOut" in="SourceGraphic" dx="0" dy="0" />
+                        <feGaussianBlur in="offOut" stdDeviation="10" result="blur" />
+                        <feComponentTransfer>
+                            <feFuncR type="discrete" tableValues="0.8" />
+                            <feFuncG type="discrete" tableValues="0.3" />
+                            <feFuncB type="discrete" tableValues="0.2" />
+                        </feComponentTransfer>
+                        <feComposite in="SourceGraphic" operator="over" />
+                    </filter>
+                </defs>
+                <g class="whole">
+                    <g class="pContainer"></g>
+
+                    <!-- 蛋糕组：居中布局 + 尺寸优化 -->
+                    <g class="cakeGroup" transform="translate(-80, -100) scale(1.2, 1.2)"> <!-- 修正坐标居中 -->
+                        <!-- 蛋糕线框：统一文字颜色 + 加粗线条 -->
+                        <g class="cake-wireframe" stroke="#C89568" fill="none" filter="url(#goldGlow)">
+                            <!-- 蛋糕盘 - 对称优化 -->
+                            <path class="cake-line medium" d="M200,540 Q400,590 600,540 Q400,550 200,540 Z" />
+
+                            <!-- 底层蛋糕 -->
+                            <path class="cake-line thick" d="M240,520 Q400,570 560,520 Q400,490 240,520 Z" />
+                            <path class="cake-line thin" d="M240,520 L240,460" />
+                            <path class="cake-line thin" d="M560,520 L560,460" />
+                            <!-- 底层糖霜 -->
+                            <path class="cake-line icing"
+                                d="M240,460 C280,450 340,445 400,460 C460,445 520,450 560,460" />
+
+                            <!-- 中层蛋糕 -->
+                            <path class="cake-line medium" d="M290,460 L290,395" />
+                            <path class="cake-line medium" d="M510,460 L510,395" />
+                            <path class="cake-line thick" d="M290,395 Q400,440 510,395 Q400,365 290,395 Z" />
+                            <!-- 中层糖霜 -->
+                            <path class="cake-line icing"
+                                d="M275,397 C330,388 370,385 400,397 C430,385 470,388 525,397" />
+
+                            <!-- 顶层蛋糕 -->
+                            <path class="cake-line medium" d="M340,395 L340,290" />
+                            <path class="cake-line medium" d="M460,395 L460,290" />
+                            <path class="cake-line thick" d="M340,290 Q400,330 460,290 Q400,270 340,290 Z" />
+                            <!-- 顶层糖霜 -->
+                            <path class="cake-line icing"
+                                d="M325,292 C360,285 380,282 400,292 C420,282 440,285 475,292" />
+
+                            <!-- 蜡烛 -->
+                            <path class="cake-line thin" d="M392,290 L392,230" />
+                            <path class="cake-line thin" d="M408,290 L408,230" />
+                            <path class="cake-line thin" d="M392,230 Q400,225 408,230 Q400,235 392,230 Z" />
+                        </g>
+
+                        <!-- 星星装饰：颜色统一 -->
+                        <g class="cake-topper" transform="translate(400, 200) scale(3.2)"> <!-- 放大星星 -->
+                            <polygon class="treeStar"
+                                points="0,-10 2.5,-3.5 9.5,-3.5 4,1 6,8 0,4 -6,8 -4,1 -9.5,-3.5 -2.5,-3.5"
+                                fill="#C89568" stroke="#C89568" stroke-width="1.5" filter="url(#goldGlow)"
+                                opacity="0" />
+                            <polygon id="treeStarOutline"
+                                points="0,-10 2.5,-3.5 9.5,-3.5 4,1 6,8 0,4 -6,8 -4,1 -9.5,-3.5 -2.5,-3.5"
+                                fill="rgba(255,255,255,0.2)" stroke="#C89568" stroke-width="1.2" opacity="0" />
+                        </g>
+
+                        <!-- 蛋糕绘制路径：用于粒子跟随 -->
+                        <path class="cakeMotionPath" fill="none" stroke="none" d="M200,540 Q400,590 600,540 Q400,550 200,540 Z 
+                               M240,520 L240,460 
+                               M560,520 L560,460 
+                               M240,460 C280,450 340,445 400,460 C460,445 520,450 560,460
+                               M240,520 Q400,570 560,520 
+                               M290,460 L290,395 
+                               M510,460 L510,395 
+                               M275,397 C330,388 370,385 400,397 C430,385 470,388 525,397 
+                               M290,395 Q400,440 510,395 
+                               M340,395 L340,290 
+                               M460,395 L460,290 
+                               M325,292 C360,285 380,282 400,292 C420,282 440,285 475,292 
+                               M340,290 Q400,330 460,290 
+                               M392,290 L392,230 
+                               M408,290 L408,230 
+                               M392,230 Q400,225 408,230" />
+                    </g>
+                    <circle class="sparkle" fill="url(#dotGrad)" cx="0" cy="0" r="50" />
+                </g>
+            </svg>
+
+            <!-- 生日祝福语：蛋糕下方居中 -->
+            <h1 id="header">
+                <p class="header-item">姓名</p>
+                <p class="header-item">Happy Birthday!</p>
+                <p class="header-item">祝你：梦想成真&前程似锦！</p>
+                <p class="header-item">跟着你，勇敢的走下去</p>
+            </h1>
+        </div>
+
+        <!-- 下滑提示 -->
+        <div class="scroll-indicator">下滑查看更多</div>
+    </section>
+
+    <!-- 长页面内容区块 -->
+    <section class="content-section">
+        <h2>我知这生命本就如露水般短暂</h2>
+        <p>然而，然而……</p>
+        <p>人生下来不是为了拖着锁链，而是为了张开双翼。</p>
+    </section>
+
+    <section class="content-section">
+        <h2>絮雪飘扬，冰河滚烫</h2>
+        <p>愿你于荆棘中成长，以热爱赴远方，明媚而坦荡</p>
+        <p>祝你的18岁快乐，年岁并往。</p>
+    </section>
+
+
+
+    <section class="content-section">
+        <h2>也祝你每一岁</h2>
+        <p>都能毫无代价唱最幸福的歌</p>
+        <p>愿你可。</p>
+    </section>
+
+    <!-- 保留原有JS库引用 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/MotionPathPlugin.min.js"></script>
+    <script>
+        // 注册GSAP插件
+        gsap.registerPlugin(MotionPathPlugin);
+
+        // 页面加载完成后执行
+        window.addEventListener('DOMContentLoaded', () => {
+            // 0. 背景音乐自动播放与音量控制
+            const audio = document.getElementById('bgMusic');
+            if (audio) {
+                audio.volume = 0.4; // 设置适中音量 (40%)
+                // 尝试自动播放
+                audio.play().catch(error => {
+                    console.log("Autoplay prevented. Waiting for user interaction.");
+                    // 如果自动播放被浏览器拦截，则在用户第一次点击页面时播放
+                    document.addEventListener('click', () => {
+                        audio.play();
+                    }, { once: true });
+                });
+            }
+
+            // 1. 显示SVG
+            const svg = document.querySelector('.mainSVG');
+            gsap.set(svg, { visibility: 'visible' });
+
+            // 2. 生日祝福语渐显动画
+            const headerItems = document.querySelectorAll('.header-item');
+            headerItems.forEach((item, index) => {
+                setTimeout(() => {
+                    item.classList.add('show');
+                }, 1000 + index * 500);
+            });
+
+            // 3. 蛋糕绘制动画 - 绘制完成后永久保留轮廓
+            const cakeLines = document.querySelectorAll('.cake-line');
+            // 循环绘制，快速衔接
+            const drawTimeline = gsap.timeline({ delay: 0.5, repeat: -1, repeatDelay: 0 });
+
+            cakeLines.forEach((line, index) => {
+                const length = line.getTotalLength();
+                line.style.strokeDasharray = length;
+                line.style.strokeDashoffset = length;
+
+                drawTimeline.to(line, {
+                    strokeDashoffset: 0,
+                    duration: 2, // 减慢绘制速度 (原1)
+                    ease: "power1.inOut",
+                    onComplete: () => {
+                        // 绘制完成后锁定轮廓，不消失
+                        line.style.strokeDashoffset = 0;
+                        line.style.opacity = 1;
+                    }
+                }, index * 0.2); // 增加间隔 (原0.1)
+            });
+
+            // 4. 星星出现动画
+            const treeStar = document.querySelector('.treeStar');
+            const treeStarOutline = document.getElementById('treeStarOutline');
+
+            drawTimeline.to(treeStar, {
+                opacity: 1,
+                scale: 1.2,
+                duration: 0.5,
+                ease: "back.out(1.7)"
+            }, "+=0.3")
+                .to(treeStarOutline, {
+                    opacity: 0.8,
+                    scale: 1.1,
+                    duration: 0.5,
+                    ease: "back.out(1.7)"
+                }, "-=0.3")
+                .to([treeStar, treeStarOutline], {
+                    scale: 1,
+                    duration: 0.3,
+                    onComplete: () => {
+                        // 星星永久显示
+                        treeStar.style.opacity = 1;
+                        treeStarOutline.style.opacity = 0.8;
+                    }
+                });
+
+            // 5. 雪花粒子动画：数量增加+永久显示
+            createSnowflakeAnimation();
+
+            // 6. 滚动效果
+            setupScrollEffects();
+        });
+
+        // 雪花跟随动画：数量增加到80个 + 永久显示不消失
+        function createSnowflakeAnimation() {
+            const path = document.querySelector('.cakeMotionPath');
+            const pathLength = path.getTotalLength();
+
+            // 粒子数量从30增加到80
+            for (let i = 0; i < 80; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.classList.add('snowflake');
+                const size = Math.random() * 4 + 1; // 粒子尺寸稍大
+                snowflake.style.width = `${size}px`;
+                snowflake.style.height = `${size}px`;
+                document.body.appendChild(snowflake);
+
+                const startDelay = i * 0.05; // 更密集的粒子出现间隔
+                const duration = 12 + Math.random() * 6; // 更长的运动时长
+
+                const snowTimeline = gsap.timeline({
+                    delay: startDelay + 1,
+                    repeat: -1, // 无限循环
+                    repeatDelay: 2 + Math.random() * 3 // 缩短重复间隔，粒子更密集
+                });
+
+                snowTimeline.to(snowflake, {
+                    motionPath: {
+                        path: path,
+                        align: path,
+                        autoRotate: true,
+                        alignOrigin: [0.5, 0.5]
+                    },
+                    duration: duration,
+                    ease: "linear",
+                    opacity: 1 // 强制保持不透明
+                })
+                    // 移除淡出效果，粒子永久显示
+                    .set(snowflake, {
+                        opacity: 1,
+                        x: 0,
+                        y: 0
+                    });
+            }
+        }
+
+        // 滚动效果（保留原有逻辑）
+        function setupScrollEffects() {
+            // 平滑滚动点击事件
+            document.querySelector('.scroll-indicator').addEventListener('click', () => {
+                gsap.to(window, {
+                    scrollTo: { y: window.innerHeight, autoKill: false },
+                    duration: 1,
+                    ease: "power1.inOut"
+                });
+            });
+
+            // 滚动显示内容区块
+            const contentSections = document.querySelectorAll('.content-section');
+            function checkScroll() {
+                contentSections.forEach(section => {
+                    const sectionTop = section.getBoundingClientRect().top;
+                    const windowHeight = window.innerHeight;
+                    if (sectionTop < windowHeight * 0.75) {
+                        section.classList.add('visible');
+                    }
+                });
+            }
+            checkScroll();
+            window.addEventListener('scroll', checkScroll);
+        }
+
+        // 动态星空图（保留原有逻辑）
+        // (function () { ... }) logic removed in favor of stars.js
+    </script>
+    <script src="js/stars.js"></script>
+    <script src="js/snow.js"></script>
+</body>
+
+</html>

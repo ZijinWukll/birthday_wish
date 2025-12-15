@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minimalist Luxury Celebration</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="css/birthday_wish.css" />
+</head>
+
+<body data-mode="tree">
+    <canvas id="starCanvas" class="star-canvas"></canvas>
+    <canvas id="luxCanvas"></canvas>
+
+    <div class="overlay">
+        <div class="title-stack">
+            <span class="eyebrow">A luminous celebration</span>
+            <h1 id="mainTitle">Happy Birthday, 姓名</h1>
+            <p class="subtitle" id="subTitle">and Merry Christmas</p>
+            <button class="main-button" id="openButton">姓名亲启</button>
+        </div>
+    </div>
+
+    <!-- 按钮点击逻辑：普通脚本，确保跳转始终可用 -->
+    <script src="js/button.js"></script>
+    <!-- 星空背景：普通脚本，确保始终运行 -->
+    <script src="js/stars.js"></script>
+    <!-- Three.js 粒子树等：模块脚本 -->
+    <script type="module" src="js/index.js"></script>
+</body>
+
+</html>
