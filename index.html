@@ -18,6 +18,17 @@
     <canvas id="luxCanvas"></canvas>
 
     <div class="overlay">
+        <!-- 倒计时模块 -->
+        <div class="countdown-container" id="countdownContainer">
+            <div class="countdown-text">距离DLS的生日还有：</div>
+            <div class="countdown-timer" id="countdownTimer">
+                <div class="time-unit"><span id="days">00</span><span class="label">Days</span></div>
+                <div class="time-unit"><span id="hours">00</span><span class="label">Hours</span></div>
+                <div class="time-unit"><span id="minutes">00</span><span class="label">Minutes</span></div>
+                <div class="time-unit"><span id="seconds">00</span><span class="label">Seconds</span></div>
+            </div>
+        </div>
+
         <div class="title-stack">
             <span class="eyebrow">A luminous celebration</span>
             <h1 id="mainTitle">Happy Birthday, 邓林杉</h1>
@@ -28,6 +39,8 @@
 
     <!-- 按钮点击逻辑：普通脚本，确保跳转始终可用 -->
     <script src="js/button.js"></script>
+    <!-- 倒计时逻辑 -->
+    <script src="js/countdown.js"></script>
     <!-- 星空背景：普通脚本，确保始终运行 -->
     <script src="js/stars.js"></script>
     <!-- Three.js 粒子树等：模块脚本 -->
