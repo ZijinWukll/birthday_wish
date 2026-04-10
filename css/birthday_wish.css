@@ -1,0 +1,747 @@
+:root {
+    --champagne: #f7e7ce;
+    --rose: #ffb7c5;
+    --noir: #000000;
+    --gild: #ffd700;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Cormorant Garamond", serif;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #000000 0%, #0a0a0a 50%, #1a1a1a 100%);
+    background: var(--bg-main, linear-gradient(180deg, #000000 0%, #0a0a0a 50%, #1a1a1a 100%));
+    color: var(--champagne);
+    overflow: hidden;
+    position: relative;
+    transition: background 1.4s ease, color 0.8s ease;
+}
+
+body::before,
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+}
+
+body::before {
+    background: radial-gradient(circle at 20% 20%, rgba(255, 183, 197, 0.26), transparent 55%),
+        radial-gradient(circle at 80% 10%, rgba(255, 215, 0, 0.18), transparent 50%),
+        radial-gradient(circle at 50% 80%, rgba(247, 231, 206, 0.12), transparent 45%);
+    animation: slowGlow 12s ease-in-out infinite alternate;
+}
+
+body::after {
+    background: linear-gradient(130deg, rgba(0, 0, 0, 0.35), transparent 45%),
+        repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.05) 0 2px, transparent 2px 6px);
+    mix-blend-mode: screen;
+    opacity: 0.3;
+    filter: blur(0.4px);
+    animation: shimmer 22s linear infinite;
+}
+
+canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+}
+
+.star-canvas {
+    position: fixed;
+    inset: 0;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+}
+
+#luxCanvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+@keyframes slowGlow {
+    0% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(12px);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translate3d(-10%, 0, 0);
+    }
+
+    100% {
+        transform: translate3d(10%, 0, 0);
+    }
+}
+
+@keyframes fadeSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOutUp {
+    to {
+        opacity: 0;
+        transform: translateY(-40px);
+        filter: blur(8px);
+    }
+}
+
+@keyframes textShine {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 200% 50%;
+    }
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    pointer-events: none;
+    z-index: 2;
+    backdrop-filter: blur(0px);
+}
+
+.creator-panel {
+    width: min(920px, 100%);
+    pointer-events: auto;
+    border: 1px solid rgba(247, 231, 206, 0.28);
+    background: linear-gradient(145deg, rgba(0, 0, 0, 0.58), rgba(16, 16, 16, 0.72));
+    border-radius: 24px;
+    padding: clamp(1.2rem, 3vw, 2.2rem);
+    box-shadow: 0 30px 80px -40px rgba(255, 215, 0, 0.4);
+    animation: fadeSlideUp 1.2s cubic-bezier(0.215, 0.610, 0.355, 1.000) forwards;
+}
+
+.creator-eyebrow {
+    margin: 0;
+    font-size: clamp(0.75rem, 1.2vw, 0.92rem);
+    letter-spacing: 0.22rem;
+    text-transform: uppercase;
+    color: rgba(255, 227, 181, 0.78);
+}
+
+.creator-title {
+    margin: 0.5rem 0 0;
+    font-family: "Cinzel", serif;
+    font-weight: 600;
+    font-size: clamp(1.8rem, 3.5vw, 3rem);
+    line-height: 1.2;
+    letter-spacing: 0.08rem;
+    background: linear-gradient(to right, #f7e7ce 22%, #ffd700 50%, #f7e7ce 78%);
+    background-size: 220% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: textShine 8s linear infinite;
+}
+
+.creator-subtitle {
+    margin: 0.9rem 0 1.25rem;
+    color: rgba(255, 183, 197, 0.92);
+    letter-spacing: 0.08rem;
+    font-size: clamp(0.95rem, 1.5vw, 1.12rem);
+    max-width: 52ch;
+    line-height: 1.5;
+}
+
+.creator-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.9rem;
+}
+
+.form-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+}
+
+.date-field {
+    position: relative;
+    overflow: visible;
+}
+
+.date-field::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: 14px;
+    background: linear-gradient(120deg, rgba(255, 215, 0, 0), rgba(255, 215, 0, 0.38), rgba(255, 183, 197, 0));
+    background-size: 220% 100%;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    z-index: 0;
+}
+
+.date-field::after {
+    content: "";
+    position: absolute;
+    right: 3rem;
+    top: 0.78rem;
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(255, 239, 182, 0.95), rgba(255, 215, 0, 0.25) 70%, transparent 72%);
+    opacity: 0;
+    transform: scale(0.6);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.date-input {
+    position: relative;
+    z-index: 1;
+    padding-right: 5.2rem;
+}
+
+.calendar-trigger {
+    position: absolute;
+    top: 0.43rem;
+    right: 0.5rem;
+    z-index: 3;
+    border: 1px solid rgba(247, 231, 206, 0.35);
+    background: rgba(0, 0, 0, 0.5);
+    color: rgba(247, 231, 206, 0.92);
+    border-radius: 10px;
+    padding: 0.42rem 0.68rem;
+    font-family: "Cormorant Garamond", serif;
+    font-size: 0.88rem;
+    letter-spacing: 0.04rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.calendar-trigger:hover {
+    border-color: rgba(255, 215, 0, 0.65);
+    color: #fff;
+    background: rgba(255, 215, 0, 0.18);
+}
+
+.date-picker-panel {
+    position: absolute;
+    top: calc(100% + 0.6rem);
+    right: 0;
+    width: min(340px, 85vw);
+    z-index: 20;
+    border: 1px solid rgba(247, 231, 206, 0.3);
+    border-radius: 16px;
+    background: linear-gradient(145deg, rgba(0, 0, 0, 0.88), rgba(24, 16, 8, 0.88));
+    box-shadow: 0 24px 40px -24px rgba(255, 215, 0, 0.38);
+    padding: 0.7rem;
+    animation: fadeSlideUp 0.28s ease;
+}
+
+.date-picker-header {
+    display: grid;
+    grid-template-columns: 2rem 1fr 2rem;
+    align-items: center;
+    margin-bottom: 0.55rem;
+}
+
+.calendar-month {
+    margin: 0;
+    text-align: center;
+    letter-spacing: 0.08rem;
+    color: rgba(247, 231, 206, 0.98);
+    font-size: 0.95rem;
+}
+
+.calendar-nav {
+    border: 1px solid rgba(247, 231, 206, 0.3);
+    border-radius: 8px;
+    background: rgba(247, 231, 206, 0.07);
+    color: rgba(247, 231, 206, 0.95);
+    cursor: pointer;
+    height: 2rem;
+}
+
+.calendar-nav:hover {
+    border-color: rgba(255, 215, 0, 0.65);
+    background: rgba(255, 215, 0, 0.18);
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.25rem;
+    margin-bottom: 0.35rem;
+    color: rgba(255, 183, 197, 0.76);
+    font-size: 0.76rem;
+    text-align: center;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.25rem;
+}
+
+.calendar-day,
+.calendar-day-empty {
+    height: 2rem;
+    border-radius: 8px;
+}
+
+.calendar-day {
+    border: 1px solid rgba(247, 231, 206, 0.22);
+    background: rgba(247, 231, 206, 0.04);
+    color: rgba(247, 231, 206, 0.95);
+    cursor: pointer;
+    font-family: "Cormorant Garamond", serif;
+    font-size: 0.92rem;
+}
+
+.calendar-day:hover {
+    border-color: rgba(255, 215, 0, 0.72);
+    background: rgba(255, 215, 0, 0.16);
+}
+
+.calendar-day.is-today {
+    border-color: rgba(255, 183, 197, 0.72);
+}
+
+.calendar-day.is-selected {
+    border-color: rgba(255, 215, 0, 0.92);
+    background: linear-gradient(145deg, rgba(255, 215, 0, 0.34), rgba(255, 183, 197, 0.24));
+    color: #fff;
+}
+
+.calendar-day-empty {
+    border: 1px dashed rgba(247, 231, 206, 0.08);
+}
+
+.calendar-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.55rem;
+}
+
+.calendar-action {
+    border: 1px solid rgba(247, 231, 206, 0.35);
+    background: rgba(247, 231, 206, 0.06);
+    color: rgba(247, 231, 206, 0.95);
+    border-radius: 999px;
+    padding: 0.25rem 0.75rem;
+    cursor: pointer;
+    font-family: "Cormorant Garamond", serif;
+    font-size: 0.85rem;
+}
+
+.calendar-action:hover {
+    border-color: rgba(255, 215, 0, 0.72);
+    background: rgba(255, 215, 0, 0.16);
+}
+
+.date-preview {
+    margin: 0.45rem 0 0;
+    font-size: 0.85rem;
+    letter-spacing: 0.08rem;
+    color: rgba(255, 183, 197, 0.78);
+    transform: translateY(6px);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease, color 0.3s ease;
+}
+
+.date-field.is-active::before {
+    opacity: 1;
+    animation: shimmer 3.2s linear infinite, datePulse 2.4s ease-in-out infinite;
+}
+
+.date-field.is-active .date-preview {
+    opacity: 1;
+    transform: translateY(0);
+    color: rgba(247, 231, 206, 0.95);
+}
+
+.date-field.is-active::after {
+    opacity: 0.95;
+    animation: dateSparkle 1.6s ease-in-out infinite;
+}
+
+.date-field.is-burst::before {
+    animation: shimmer 1.2s linear, datePulse 1.2s ease;
+}
+
+.date-field.is-burst::after {
+    animation: dateSparkleBurst 0.9s ease;
+}
+
+@keyframes datePulse {
+    0%,
+    100% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(1.15);
+    }
+}
+
+@keyframes dateSparkle {
+    0%,
+    100% {
+        opacity: 0.35;
+        transform: scale(0.65) translateY(0);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.08) translateY(-1px);
+    }
+}
+
+@keyframes dateSparkleBurst {
+    0% {
+        opacity: 0;
+        transform: scale(0.2);
+    }
+
+    40% {
+        opacity: 1;
+        transform: scale(1.25);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+}
+
+.form-label {
+    font-size: 0.9rem;
+    color: rgba(247, 231, 206, 0.95);
+    letter-spacing: 0.08rem;
+}
+
+.form-hint {
+    margin: -0.25rem 0 0.35rem;
+    font-size: 0.82rem;
+    color: rgba(255, 183, 197, 0.82);
+    letter-spacing: 0.04rem;
+}
+
+.form-input,
+.form-textarea {
+    width: 100%;
+    border: 1px solid rgba(247, 231, 206, 0.3);
+    background: rgba(0, 0, 0, 0.36);
+    color: var(--champagne);
+    border-radius: 12px;
+    padding: 0.7rem 0.85rem;
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 132px;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: rgba(255, 215, 0, 0.62);
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.14);
+}
+
+.creator-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.secondary-button {
+    border: 1px solid rgba(247, 231, 206, 0.4);
+    color: var(--champagne);
+    background: rgba(247, 231, 206, 0.06);
+    border-radius: 100px;
+    padding: 0.8rem 1.5rem;
+    letter-spacing: 0.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: "Cormorant Garamond", serif;
+    font-size: 0.95rem;
+}
+
+.secondary-button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.secondary-button:not(:disabled):hover {
+    border-color: rgba(255, 215, 0, 0.65);
+    background: rgba(255, 215, 0, 0.16);
+}
+
+.share-panel {
+    margin-top: 0.9rem;
+    border-top: 1px solid rgba(247, 231, 206, 0.2);
+    padding-top: 0.9rem;
+}
+
+.share-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.6rem;
+}
+
+.share-input {
+    font-size: 0.88rem;
+}
+
+.status-text {
+    min-height: 1.5rem;
+    margin: 0.9rem 0 0;
+    color: rgba(255, 183, 197, 0.96);
+    letter-spacing: 0.05rem;
+}
+
+.title-stack {
+    text-transform: uppercase;
+    letter-spacing: 0.4rem;
+    display: none;
+    /* Hidden by default for countdown mystery */
+    flex-direction: column;
+    gap: 1.5rem;
+    position: relative;
+    text-align: center;
+    width: 100%;
+    max-width: 900px;
+}
+
+/* Countdown Styles */
+.countdown-container {
+    display: flex;
+    /* Visible by default */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    z-index: 10;
+    animation: fadeSlideUp 1.5s cubic-bezier(0.215, 0.610, 0.355, 1.000) forwards;
+    transition: opacity 0.8s ease;
+}
+
+.countdown-text {
+    font-family: "Cormorant Garamond", serif;
+    font-size: clamp(1.5rem, 2.5vw, 2.5rem);
+    color: var(--champagne);
+    letter-spacing: 0.3rem;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(247, 231, 206, 0.3);
+    margin-bottom: 1rem;
+}
+
+.countdown-timer {
+    display: flex;
+    gap: clamp(1.5rem, 4vw, 4rem);
+    justify-content: center;
+}
+
+.time-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.time-unit span:first-child {
+    font-family: "Cinzel", serif;
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    font-weight: 600;
+    background: linear-gradient(to bottom, #f7e7ce 0%, #ffd700 50%, #f7e7ce 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.4));
+    line-height: 1;
+}
+
+.time-unit .label {
+    font-family: "Cormorant Garamond", serif;
+    font-size: clamp(0.7rem, 1vw, 1rem);
+    color: var(--rose);
+    letter-spacing: 0.2rem;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+.title-stack>* {
+    opacity: 0;
+    animation: fadeSlideUp 1.2s cubic-bezier(0.215, 0.610, 0.355, 1.000) forwards;
+}
+
+.eyebrow {
+    font-size: clamp(0.9rem, 1.2vw, 1.2rem);
+    color: rgba(255, 227, 181, 0.781);
+    animation-delay: 0.3s;
+}
+
+h1 {
+    font-family: "Cinzel", serif;
+    font-weight: 600;
+    font-size: clamp(3rem, 6vw, 6rem);
+    margin: 0;
+    letter-spacing: 0.2rem;
+    background: linear-gradient(to right, #f7e7ce 20%, #ffd700 40%, #fdc90be1 60%, #f7e7ce 80%);
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: fadeSlideUp 1.2s cubic-bezier(0.215, 0.610, 0.355, 1.000) forwards 0.6s, textShine 6s linear infinite 0.6s;
+}
+
+.subtitle {
+    font-size: clamp(1.2rem, 2vw, 2rem);
+    margin: 0;
+    color: var(--rose);
+    letter-spacing: 0.26rem;
+    animation-delay: 0.6s;
+}
+
+.main-button {
+    margin: 3rem auto 0;
+    pointer-events: auto;
+    text-transform: uppercase;
+    font-size: 1.1rem;
+    letter-spacing: 0.3rem;
+    padding: 1rem 3.5rem;
+    border: 1px solid rgba(247, 231, 206, 0.4);
+    color: var(--champagne);
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    border-radius: 100px;
+    transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    animation-delay: 1.4s;
+}
+
+.main-button:hover {
+    background: rgba(247, 231, 206, 0.15);
+    border-color: rgba(247, 231, 206, 0.8);
+    color: #fff;
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 10px 30px -10px rgba(255, 215, 0, 0.3);
+    letter-spacing: 0.4rem;
+}
+
+.exiting .title-stack>* {
+    animation: fadeOutUp 0.8s ease forwards;
+}
+
+.exiting .eyebrow {
+    animation-delay: 0s;
+}
+
+.exiting h1 {
+    animation-delay: 0.1s;
+}
+
+.exiting .subtitle {
+    animation-delay: 0.2s;
+}
+
+.exiting .main-button {
+    animation-delay: 0.3s;
+}
+
+@media (max-width: 768px) {
+    .overlay {
+        gap: 2rem;
+        padding: 1rem;
+    }
+
+    .creator-panel {
+        max-height: calc(100vh - 2rem);
+        overflow-y: auto;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .creator-actions {
+        flex-direction: column;
+    }
+
+    .main-button,
+    .secondary-button {
+        width: 100%;
+        margin: 0;
+    }
+
+    .share-row {
+        grid-template-columns: 1fr;
+    }
+
+    .date-picker-panel {
+        right: auto;
+        left: 0;
+    }
+
+    .title-stack {
+        letter-spacing: 0.25rem;
+    }
+
+    .wishes-panel {
+        text-align: left;
+        align-self: flex-start;
+    }
+
+    .footer-note {
+        align-self: flex-start;
+        letter-spacing: 0.2rem;
+    }
+
+    .floating-card {
+        position: static;
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    .orbital-ring {
+        width: 80vw;
+        height: 80vw;
+    }
+}

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minimalist Luxury Celebration</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="css/birthday_wish.css" />
+</head>
+
+<body data-mode="tree">
+    <canvas id="starCanvas" class="star-canvas"></canvas>
+    <canvas id="luxCanvas"></canvas>
+
+    <div class="overlay">
+        <section class="creator-panel" id="creatorPanel">
+            <p class="creator-eyebrow">Custom Birthday Link Studio</p>
+            <h1 class="creator-title">把祝福写成一首只属于 TA 的诗</h1>
+            <p class="creator-subtitle">输入关键信息与心意片段，系统会自动编排为三段祝福诗</p>
+
+            <form class="creator-form" id="wishForm" novalidate>
+                <label class="form-label" for="recipientName">被祝福者姓名</label>
+                <input class="form-input" id="recipientName" name="recipientName" type="text" maxlength="30"
+                    placeholder="例如：张三" required />
+
+                <div class="form-row">
+                    <div class="form-col">
+                        <label class="form-label" for="recipientAge">年龄</label>
+                        <input class="form-input" id="recipientAge" name="recipientAge" type="number" min="1" max="150"
+                            placeholder="18" required />
+                    </div>
+                    <div class="form-col">
+                        <label class="form-label" for="birthdayDate">今年生日日期</label>
+                        <div class="date-field" id="dateField">
+                            <input class="form-input date-input" id="birthdayDate" name="birthdayDate" type="text"
+                                inputmode="numeric" autocomplete="off" placeholder="例如：2026-04-11" required />
+                            <button class="calendar-trigger" id="calendarTrigger" type="button"
+                                aria-label="打开日期选择面板">日历</button>
+                            <div class="date-picker-panel" id="datePickerPanel" hidden>
+                                <div class="date-picker-header">
+                                    <button class="calendar-nav" id="calendarPrev" type="button" aria-label="上个月">&#8249;</button>
+                                    <p class="calendar-month" id="calendarMonthLabel">2026年04月</p>
+                                    <button class="calendar-nav" id="calendarNext" type="button" aria-label="下个月">&#8250;</button>
+                                </div>
+                                <div class="calendar-weekdays" aria-hidden="true">
+                                    <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+                                </div>
+                                <div class="calendar-grid" id="calendarGrid"></div>
+                                <div class="calendar-footer">
+                                    <button class="calendar-action" id="calendarToday" type="button">今天</button>
+                                    <button class="calendar-action" id="calendarClear" type="button">清空</button>
+                                </div>
+                            </div>
+                            <p class="date-preview" id="datePreview">尚未选择日期</p>
+                        </div>
+                    </div>
+                </div>
+
+                <label class="form-label" for="wishLines">写下祝福关键词或一句话心意</label>
+                <textarea class="form-textarea" id="wishLines" name="wishLines" rows="6" maxlength="900"
+                    placeholder="例如：勇敢、自由、热爱、闪光，或输入一段想说的话" required></textarea>
+
+
+                <label class="form-label" for="signature">落款</label>
+                <input class="form-input" id="signature" name="signature" type="text" maxlength="40"
+                    placeholder="例如：你的好朋友李四" required />
+
+                <div class="creator-actions">
+                    <button class="main-button" id="generateButton" type="submit">一键生成专属链接</button>
+                    <button class="secondary-button" id="previewButton" type="button" disabled>预览祝福页</button>
+                </div>
+            </form>
+
+            <div class="share-panel" id="sharePanel" hidden>
+                <label class="form-label" for="generatedLink">专属链接（可复制）</label>
+                <div class="share-row">
+                    <input class="form-input share-input" id="generatedLink" type="text" readonly />
+                    <button class="secondary-button" id="copyButton" type="button">复制</button>
+                </div>
+            </div>
+
+            <p class="status-text" id="statusText" aria-live="polite"></p>
+        </section>
+    </div>
+
+    <!-- 星空背景：普通脚本，确保始终运行 -->
+    <script src="js/stars.js"></script>
+    <!-- Three.js 粒子树等：模块脚本 -->
+    <script type="module" src="js/index.js"></script>
+    <script src="js/generator.js"></script>
+</body>
+
+</html>
